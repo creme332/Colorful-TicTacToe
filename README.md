@@ -3,7 +3,7 @@
 
 A colorful console TicTacToe game with single player and multiplayer. The winning path is displayed in red.
 
-# How to play #
-Just run all the code in main.cpp in a C++ compiler. 
+The minimax algorithm + alpha-beta pruning is used to make the AI unbeatable.
 
-Note : Windows is preferable
+# 🚀 Getting Started #
+Just run the code in main.cpp in a C++ compiler. Online compilers work as well. (https://www.onlinegdb.com/online_c++_compiler)
