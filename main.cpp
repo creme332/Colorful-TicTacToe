@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <climits>
 #include <stdlib.h> //used to clear terminal screen each round
 using namespace std;
 
