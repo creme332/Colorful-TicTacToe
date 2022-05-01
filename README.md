@@ -14,6 +14,8 @@
 > 
 Run the code in `main.cpp` in a C++ compiler or an [online C++compiler](https://www.onlinegdb.com/online_c++_compiler). 
 
+Input format : `<row><space><column>` , where `<row>` and `<column>` are integers between  1 and 3 inclusive.
+
 # Future work #
 - [ ] Eliminate screen/cursor flicker
 - [ ] Add themes
