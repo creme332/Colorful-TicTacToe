@@ -4,6 +4,7 @@
 
 # 🌟Features #
 - AI mode (minimax algorithm + alpha-beta pruning)
+- 2 themes : ASCII theme and Color theme
 - 2-player mode
 - Winning move is displayed at the end of each game
 
