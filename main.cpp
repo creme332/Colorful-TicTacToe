@@ -1,87 +1,58 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <climits>
 #include <stdlib.h> //used to clear terminal screen each round
-using namespace std;
+#include <Windows.h>
+#include <conio.h> 
 
 const char null = '.'; const char x = 'X'; const char o = 'O';
 const char ongoing = 'n'; //game state = ongoing if no winner yet and board not full
-int winningdirection=-1, winningstart=-1; // used by tracewin() to trace winning path
-vector<vector<char>> board = {
+int winningdirection = -1, winningstart = -1; // used by tracewin() to trace winning path
+std::vector<std::vector<char>> board = {
     {null,null,null},
     {null,null,null},
     {null,null,null},
 };
+
+void hidecursor() {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE;
+    SetConsoleCursorInfo(consoleHandle, &info);
+}
+void setCursorPosition(const int row, const int col) {
+    static const HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    std::cout.flush();
+    COORD coord = { (SHORT)col, (SHORT)row };
+    SetConsoleCursorPosition(hOut, coord);
+}
 bool IsValid(int row, int col) { //validate user input
     if (row > 0 && row < 4 && col>0 && col < 4 && board[row - 1][col - 1] == null)return 1;
     return 0;
 }
-void OutputGridBoard() { //Alternative theme
-    system("CLS"); //clear previous board from terminal
-    cout << "Use format <row><space><column> where row, column are 1-3" << endl;
-    cout << "_____________" << endl;
+void OutputGridBoard() { //Alternative BasicTheme
+    std::cout << "_____________" << std::endl;
     for (int row = 0;row < 3;row++) {
         for (int col = 0;col < 3;col++) {
             if (col == 2) {
-                cout << "| " << board[row][col] << " |";
+                std::cout << "| " << board[row][col] << " |";
             }
             else {
-                cout << "| " << board[row][col] << " ";
+                std::cout << "| " << board[row][col] << " ";
             }
         }
-        cout << endl;
+        std::cout << std::endl;
         if (row == 2) {
-            cout << "|___|___|___|" << endl;
+            std::cout << "|___|___|___|" << std::endl;
 
         }
         else {
-            cout << "|---|---|---|" << endl;
+            std::cout << "|---|---|---|" << std::endl;
         }
     }
 };
-void ColoredOutput() {
-    system("CLS"); 
-    for (int i = 0;i < 14;i++) {
-        std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-    }
-    std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m\n";
-
-       for (int row = 0;row < 3;row++) {
-           //2 green blocks at start
-           std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-           std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-
-           for (int col = 0;col < 3;col++) {
-               if (board[row][col] == null) {
-                   std::cout << "\x1B[97m.\033";
-               }
-               if (board[row][col] == x) {
-                   std::cout << "\x1B[88mX\033";
-               }
-               if (board[row][col] == o) {
-                   std::cout << "\x1B[88mO\033";
-               }
-
-               if (col == 2) {//2 green blocks at end of row
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m";
-               }
-               else {//4 green blocks between each character
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                   std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-               }
-
-
-        }
-        cout << "\n";
-        for (int i = 0;i < 14;i++) {
-            std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-        }
-        std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m\n";
-    }
-}
 char GameState() {
     // returns "X" if x won and "O" if o won 
     // returns "n" if there's no winner and board still has empty spots
@@ -112,61 +83,49 @@ char GameState() {
     if (HasEmptySpot)return ongoing;
     return 'd'; // draw
 }
-void tracewin() {
-    system("CLS");
-    //first green row
-    for (int i = 0;i < 14;i++) {std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";}
-    std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m\n";
+void tracewin(bool BasicTheme) {
 
     for (int row = 0;row < 3;row++) {
-        //2 green blocks at start of each row
-        std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-        std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-
         for (int col = 0;col < 3;col++) {
-            
-            if ((winningdirection == 0 && winningstart == row)||
-                (winningdirection == 1 && winningstart == col)||
+
+            if ((winningdirection == 0 && winningstart == row) ||
+                (winningdirection == 1 && winningstart == col) ||
                 (winningdirection == 2 && row == col) ||
                 (winningdirection == 3 && row + col == 2)
-                ){ //if there's a winner, winning play should be red
-                if (board[row][col] == x) {std::cout << "\x1B[31mX\033";} //red X
-                if (board[row][col] == o) {std::cout << "\x1B[31mO\033";} //red O
-            }
-            else { //no color change
-                if (board[row][col] == null) {std::cout << "\x1B[97m.\033";} //white dot
-                if (board[row][col] == x) { std::cout << "\x1B[88mX\033"; } //black X
-                if (board[row][col] == o) { std::cout << "\x1B[88mO\033"; } //black O
-            }
+                ) { //if there's a winner, winning play should be red
+                if (!BasicTheme) {
+                    setCursorPosition(2 * row + 1, 5 * col + 3);
+                    if (board[row][col] == x) { std::cout << "\033[3;42;34mX\033[0m"; } // X green background
+                    if (board[row][col] == o) { std::cout << "\033[3;42;34mO\033[0m"; } // O green background
+                }
+                else {
+                    setCursorPosition(2 * row + 1, 4 * col + 2);
+                    if (board[row][col] == x) { std::cout << "\x1B[32mX\033[0m"; } //green X black bg
+                    if (board[row][col] == o) { std::cout << "\x1B[32mO\033[0m"; } //green O black bg
+                }
 
-            if (col == 2) {//add 2 green blocks at end of each row
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m";
             }
-            else {//add 4 green blocks between each x,o,null
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-                std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-            }
-
-
         }
-        cout << "\n";
-        for (int i = 0;i < 14;i++) { //add 1 green row
-            std::cout << " " << "\033[48;5;34m\033[38;5;232m \033";
-        }
-        std::cout << " " << "\033[48;5;34m\033[38;5;232m \033[0m\n";
     }
 
 }
-void UpdateBoard(bool turn, int row, int col) {
+void UpdateBoard(bool BasicTheme, bool turnX, int row, int col) {
     //coordinates have already been validated
     // row n has index n-1 and column k has index k-1
-    board[row - 1][col - 1] = (turn == 0) ? o : x;
+    board[row - 1][col - 1] = (!turnX) ? o : x;
+    if (BasicTheme) {
+        setCursorPosition(2 * row - 1, 4 * col - 2);
+        if (turnX)std::cout << "X";
+        else std::cout << "O";
+    }
+    else {
+        setCursorPosition(2 * row - 1, 5 * col - 2);
+        if (turnX) std::cout << "\033[42;5;30mX\033[0m";
+        else std::cout << "\033[42;5;30mO\033[0m";
+    }
 }
 
-int minimax(int depth, bool maximizingplayer,int alpha, int beta) {
+int minimax(int depth, bool maximizingplayer, int alpha, int beta) {
     char result = GameState();
     //if game over
     if (result == x)return 100;
@@ -196,7 +155,7 @@ int minimax(int depth, bool maximizingplayer,int alpha, int beta) {
     return maximizingplayer == 1 ? MaxEval : MinEval;
 }
 
-void AImove() {
+void AImove(bool BasicTheme) {
     int p = -1, q = -1; //best move is to play at (p,q)
     int MaxEval = INT_MIN;
 
@@ -216,69 +175,138 @@ void AImove() {
         }
     }
     board[p][q] = x;
+    UpdateBoard(BasicTheme, 1, p+1, q+1);
+
 }
 
-int main()
-{
-    bool vsAI = 1;
-    bool turnX = 1; // 0 = O first ;  1 = X first
-    char state = ongoing;
-    int row, col;
-    cout << "1 player mode? yes->1  No->0 ";
-    cin >> vsAI;
+void NewColoredOutput() {
+    const std::string GreenBlock = "\033[48;5;34m\033[42;5;232m \033";
+    //first line of green blocks
+    for (int i = 0;i < 14;i++)std::cout << " " << GreenBlock;
+    std::cout << " " << GreenBlock <<"[0m\n";
 
-    cout << "Who starts?  X->1 O->0 ";
-    cin >> turnX;
+    for (int row = 0;row < 3;row++) {
+        //2 green blocks at start of each row 
+        std::cout << " " << GreenBlock;
+        std::cout << " " << GreenBlock;
 
-    if (vsAI) { //1 player mode
-        while (state == ongoing) {
-           ColoredOutput();
-            if (turnX == 0) {
-                cout << "Your turn \n" << endl;
-                cin >> row >> col;
-
-                while (IsValid(row, col) == 0) {
-                    cout << "Invalid coordinates. Enter again. " << endl;
-                    cin >> row >> col;
-                }
-                UpdateBoard(0, row, col);
-
+        for (int col = 0;col < 3;col++) {
+            if (board[row][col] == null) {
+                std::cout << "\x1B[97m.\033";
             }
-            else {
-                AImove();
+            if (board[row][col] == x) {
+                std::cout << "\x1B[88mX\033"; //black X
             }
-            state = GameState();
-            turnX = !(turnX); 
+            if (board[row][col] == o) {
+                std::cout << "\x1B[88mO\033"; //black O
+            }
+
+            if (col == 2) {//2 green blocks at end of row
+                std::cout << " " << GreenBlock << GreenBlock << "[0m";
+            }
+            else {//4 green blocks between each character
+                for(int i=0;i<4;i++) std::cout << " " << GreenBlock;
+            }
         }
-
+        std::cout << "\n";
+        for (int i = 0;i < 14;i++) {
+            std::cout << " " << GreenBlock;
+        }
+        std::cout << " " << GreenBlock << "[0m\n";
     }
-    else { //2 player mode
-        while (state == ongoing) {
-            ColoredOutput();
-            cout << ((turnX == 0) ? "O's turn" : "X's turn") << endl;
-            cin >> row >> col;
+}
 
-            while (IsValid(row, col) == 0) {
-                cout << "Invalid coordinates. Enter again. \n" << endl;
-                cin >> row >> col;
-            }
-            UpdateBoard(turnX, row, col);
-            state = GameState();
-            turnX = !(turnX); //swap turns 
-        }
-    }
-
-    if (GameState() != 'd') {
-        tracewin();
-        if (state == 0) {
-            cout << "Player O has won!\n";
-        }
-        else {
-            cout << "Player X has won!\n";
-        }
+void InitialiseTerminal(bool BasicTheme, bool vsAI, bool turnX) {
+    system("cls");
+    if (BasicTheme) {
+        OutputGridBoard();
     }
     else {
-        ColoredOutput();
-        cout << "Draw !\n";
+        NewColoredOutput();
     }
+    if (!vsAI) {
+        setCursorPosition(7, 0);
+        std::cout << ((turnX == 0) ? "O's turn" : "X's turn")<<"\n";
+    }
+}
+int main(){
+    hidecursor();
+    bool vsAI = 0;
+    bool BasicTheme = 1;
+    bool turnX = 0; // 0 = O first ;  1 = X first
+    char state = ongoing;
+    int row=0, col=0; //user input
+
+    std::cout << "Choose theme :\n0 : Colored theme\n1 : Basic theme\n";
+    std::cin >> BasicTheme;
+    std::cout << "Game mode :\n0 : Two-player mode\n1 : AI mode\n";
+    std::cin >> vsAI;
+    std::cout << "Choose starting player : \n0 : You  \n1 : Opponent\n";
+    std::cin >> turnX;
+
+    InitialiseTerminal(BasicTheme,vsAI,turnX);
+
+    while (state == ongoing) {
+        if (vsAI) {
+            if (turnX) { 
+                setCursorPosition(8, 0); std::cout << "      "; //clear previous terminal input
+                setCursorPosition(7, 0); std::cout << "AI's turn\n";
+                AImove(BasicTheme); 
+            }
+            else {
+                setCursorPosition(8, 0); std::cout << "      "; //clear previous terminal input
+                setCursorPosition(7, 0); std::cout << "Your turn\n";
+                std::cin >> row >> col;
+                while (!IsValid(row, col)) {
+                    setCursorPosition(9, 0); std::cout << "Invalid coordinates. Enter again.\n";
+                    setCursorPosition(8, 0); std::cout << "      "; //clear previous terminal input
+                    setCursorPosition(8, 0);
+                    std::cin >> row >> col;
+                }
+                setCursorPosition(9, 0); std::cout << "                                  ";
+                setCursorPosition(10, 0); std::cout << "                                  ";
+                UpdateBoard(BasicTheme, turnX, row, col);
+            }
+        }
+        else {
+            setCursorPosition(8, 0); std::cout << "      "; //clear previous terminal input
+            setCursorPosition(7, 0); std::cout << ((turnX) ? "X" : "O")<<"\n";
+            std::cin >> row >> col;
+            while (!IsValid(row, col)) {
+                setCursorPosition(9, 0); std::cout << "Invalid coordinates. Enter again.\n";
+                setCursorPosition(8, 0); std::cout << "      "; //clear previous terminal input
+                setCursorPosition(8, 0);
+                std::cin >> row >> col;
+            }
+            setCursorPosition(9, 0); std::cout << "                                  ";
+            setCursorPosition(10, 0); std::cout << "                                  ";
+            UpdateBoard(BasicTheme, turnX, row, col);
+        }
+        state = GameState();
+        turnX = !(turnX); //swap turns 
+    }
+
+    if (BasicTheme) {
+        setCursorPosition(7, 0); std::cout << "                                  ";
+        setCursorPosition(8, 0); std::cout << "                                  ";
+        setCursorPosition(7, 0);
+    }
+    else {
+        setCursorPosition(9, 0); std::cout << "                                  ";
+        setCursorPosition(10, 0); std::cout << "                                  ";
+        setCursorPosition(9, 0);
+    }
+
+
+    if (GameState() != 'd') {
+        tracewin(BasicTheme);
+        setCursorPosition(7, 0);
+        if (state == 0)std::cout << "Player O has won!\n\n";
+        else std::cout << "Player X has won!\n\n";
+    }
+    else {
+        std::cout << "Draw !\n\n";
+    }
+    system("pause");
+    return 0;
 }
