@@ -19,3 +19,5 @@ Input format : `<row><space><column>` , where `<row>` and `<column>` are integer
 # Future work #
 - [ ] Eliminate screen/cursor flicker
 - [ ] Add themes
+- [ ] Trace win for basic theme
+- [ ] Get rid of namespace std
