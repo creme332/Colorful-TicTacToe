@@ -1,8 +1,6 @@
 # 🎮 Colorful-TicTacToe game
-![image](https://user-images.githubusercontent.com/65414576/155281497-ec19e859-4624-4e66-a1f9-0d7c0dc8f479.png)
-
-![](1playerMode.gif)
-![](2playerMode.gif)
+![](BasicTheme.gif)
+![](Test.gif)
 
 # 🌟Features #
 - AI mode (minimax algorithm + alpha-beta pruning)
