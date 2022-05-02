@@ -16,8 +16,10 @@ Run the code in `main.cpp` in a C++ compiler or an [online C++compiler](https://
 
 Input format : `<row><space><column>` , where `<row>` and `<column>` are integers between  1 and 3 inclusive.
 
+Note : AI will take a few seconds to calculate optimal starting move but becomes faster later.
+
 # 🔮 Future work #
-- [ ] Eliminate screen/cursor flicker
-- [ ] Add themes
-- [ ] Trace win for basic theme
-- [ ] Get rid of namespace std
+- [x] Eliminate screen/cursor flicker
+- [x] Add themes
+- [x] Trace win for basic theme
+- [x] Get rid of namespace std
