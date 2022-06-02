@@ -1,5 +1,7 @@
 # 🎮 Colorful-TicTacToe game
+#### Theme 1 : AI mode ####
 ![](BasicTheme.gif)
+#### Theme 2 : 2-player mode ####
 ![](Test.gif)
 
 # 🌟Features #
